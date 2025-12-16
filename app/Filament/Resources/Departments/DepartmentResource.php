@@ -9,6 +9,8 @@ use App\Filament\Resources\Departments\Schemas\DepartmentForm;
 use App\Filament\Resources\Departments\Tables\DepartmentsTable;
 use App\Models\Department;
 use BackedEnum;
+use App\Filament\Resources\DepartmentResource\Pages;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -18,7 +20,7 @@ class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
 
     public static function form(Schema $schema): Schema
     {

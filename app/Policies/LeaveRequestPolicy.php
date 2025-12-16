@@ -29,7 +29,7 @@ class LeaveRequestPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class LeaveRequestPolicy
      */
     public function update(User $user, LeaveRequest $leaveRequest): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || ($leaveRequest->user_id === $user->id && $leaveRequest->status === 'PENDING');
     }
 
     /**
@@ -45,7 +45,7 @@ class LeaveRequestPolicy
      */
     public function delete(User $user, LeaveRequest $leaveRequest): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || ($leaveRequest->user_id === $user->id && $leaveRequest->status === 'PENDING');
     }
 
     /**

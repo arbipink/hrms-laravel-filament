@@ -12,7 +12,9 @@ class DepartmentForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required(),
+                    ->required()
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true),
             ]);
     }
 }
