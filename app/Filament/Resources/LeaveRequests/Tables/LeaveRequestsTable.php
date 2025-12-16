@@ -11,17 +11,25 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class LeaveRequestsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                if (! auth()->user()->isAdmin()) {
+                    return $query->where('user_id', auth()->id());
+                }
+                return $query;
+            })
             ->columns([
                 TextColumn::make('user.name')
                     ->label('Employee')
                     ->searchable()
                     ->sortable()
+                    // Keep this visible check, it's good UX
                     ->visible(fn () => auth()->user()->isAdmin()),
 
                 TextColumn::make('start_date')
