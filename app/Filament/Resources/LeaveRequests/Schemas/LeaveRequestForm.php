@@ -5,7 +5,6 @@ namespace App\Filament\Resources\LeaveRequests\Schemas;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class LeaveRequestForm
@@ -18,6 +17,7 @@ class LeaveRequestForm
                     ->relationship('user', 'name')
                     ->required()
                     ->visible(fn () => auth()->user()->isAdmin())
+                    ->disabled(fn () => auth()->user()->isAdmin())
                     ->default(fn () => auth()->id()),
 
                 Select::make('status')
@@ -41,13 +41,13 @@ class LeaveRequestForm
 
                 Textarea::make('reason')
                     ->required()
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->disabled(fn () => auth()->user()->isAdmin()),
 
                 Textarea::make('admin_comment')
                     ->label('Admin Note')
                     ->columnSpanFull()
                     ->disabled(fn () => ! auth()->user()->isAdmin())
-                    ->dehydrated(fn () => auth()->user()->isAdmin())
                     ->hidden(fn (?string $operation) => $operation === 'create' && ! auth()->user()->isAdmin()),
             ]);
     }

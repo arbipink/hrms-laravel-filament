@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\LeaveRequests\Tables;
 
 use App\Models\LeaveRequest;
@@ -30,37 +31,37 @@ class LeaveRequestsTable
                     ->limit(20)
                     ->wrap()
                     ->lineClamp(2)
-                    ->tooltip(fn ($record) => $record->admin_comment ? $record->admin_comment : null)
-                    ->visible(fn () => auth()->user()->isAdmin()),
-                
+                    ->tooltip(fn($record) => $record->admin_comment ? $record->admin_comment : null)
+                    ->visible(fn() => auth()->user()->isAdmin()),
+
                 TextColumn::make('start_date')
                     ->date()
                     ->sortable(),
-                
+
                 TextColumn::make('end_date')
                     ->date()
                     ->sortable(),
-                
+
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'PENDING' => 'warning',
                         'APPROVED' => 'success',
                         'REJECTED' => 'danger',
                     }),
-                
+
                 TextColumn::make('reason')
                     ->limit(35)
                     ->lineClamp(2)
-                    ->tooltip(fn ($record) => $record->reason ? $record->reason : null)
+                    ->tooltip(fn($record) => $record->reason ? $record->reason : null)
                     ->wrap(),
-                
+
                 TextColumn::make('admin_comment')
                     ->label('Admin Comment')
                     ->limit(35)
                     ->wrap()
                     ->lineClamp(2)
-                    ->tooltip(fn ($record) => $record->admin_comment ? $record->admin_comment : null)
+                    ->tooltip(fn($record) => $record->admin_comment ? $record->admin_comment : null)
                     ->placeholder('No comment yet'),
             ])
             ->defaultSort('created_at', 'desc')
@@ -72,9 +73,9 @@ class LeaveRequestsTable
                         'REJECTED' => 'Rejected',
                     ]),
             ])
-            ->actions([
+            ->recordActions([
                 Action::make('approve')
-                    ->form([
+                    ->schema([
                         Textarea::make('admin_comment')
                             ->label('Comment (Optional)')
                             ->placeholder('Add a comment about this approval...')
@@ -86,27 +87,24 @@ class LeaveRequestsTable
                             'status' => 'APPROVED',
                             'admin_comment' => $data['admin_comment'] ?? $record->admin_comment,
                         ]);
-                        
+
                         Notification::make()
                             ->title('Request Approved')
                             ->success()
                             ->send();
                     })
-                    ->modalHeading(fn (LeaveRequest $record) => 
-                        $record->status === 'PENDING' 
-                            ? 'Approve Leave Request' 
-                            : 'Change to Approved'
-                    )
+                    ->modalHeading('Approve Leave Request')
                     ->modalSubmitActionLabel('Approve')
                     ->color('success')
                     ->icon('heroicon-o-check')
-                    ->visible(fn (LeaveRequest $record) => 
-                        auth()->user()->isAdmin() && 
-                        in_array($record->status, ['PENDING', 'REJECTED'])
+                    ->visible(
+                        fn(LeaveRequest $record) =>
+                        auth()->user()->isAdmin() &&
+                            $record->status === 'PENDING'
                     ),
-                
+
                 Action::make('reject')
-                    ->form([
+                    ->schema([
                         Textarea::make('admin_comment')
                             ->label('Comment (Optional)')
                             ->placeholder('Add a comment about this rejection...')
@@ -118,26 +116,28 @@ class LeaveRequestsTable
                             'status' => 'REJECTED',
                             'admin_comment' => $data['admin_comment'] ?? $record->admin_comment,
                         ]);
-                        
+
                         Notification::make()
                             ->title('Request Rejected')
                             ->danger()
                             ->send();
                     })
-                    ->modalHeading(fn (LeaveRequest $record) => 
-                        $record->status === 'PENDING' 
-                            ? 'Reject Leave Request' 
-                            : 'Change to Rejected'
-                    )
+                    ->modalHeading('Reject Leave Request')
                     ->modalSubmitActionLabel('Reject')
                     ->color('danger')
                     ->icon('heroicon-o-x-mark')
-                    ->visible(fn (LeaveRequest $record) => 
-                        auth()->user()->isAdmin() && 
-                        in_array($record->status, ['PENDING', 'APPROVED'])
+                    ->visible(
+                        fn(LeaveRequest $record) =>
+                        auth()->user()->isAdmin() &&
+                            $record->status === 'PENDING'
                     ),
 
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(
+                        fn(LeaveRequest $record) =>
+                        auth()->user()->isAdmin() &&
+                            $record->status !== 'PENDING'
+                    ),
             ]);
     }
 }
