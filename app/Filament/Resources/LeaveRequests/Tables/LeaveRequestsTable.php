@@ -11,6 +11,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class LeaveRequestsTable
 {
@@ -18,8 +19,8 @@ class LeaveRequestsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                if (! auth()->user()->isAdmin()) {
-                    return $query->where('user_id', auth()->id());
+                if (! Auth::user()->isAdmin()) {
+                    return $query->where('user_id', Auth::id());
                 }
                 return $query;
             })
@@ -32,7 +33,7 @@ class LeaveRequestsTable
                     ->wrap()
                     ->lineClamp(2)
                     ->tooltip(fn($record) => $record->admin_comment ? $record->admin_comment : null)
-                    ->visible(fn() => auth()->user()->isAdmin()),
+                    ->visible(fn() => Auth::user()->isAdmin()),
 
                 TextColumn::make('start_date')
                     ->date()
@@ -62,7 +63,8 @@ class LeaveRequestsTable
                     ->wrap()
                     ->lineClamp(2)
                     ->tooltip(fn($record) => $record->admin_comment ? $record->admin_comment : null)
-                    ->placeholder('No comment yet'),
+                    ->placeholder('No comment yet')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -99,7 +101,7 @@ class LeaveRequestsTable
                     ->icon('heroicon-o-check')
                     ->visible(
                         fn(LeaveRequest $record) =>
-                        auth()->user()->isAdmin() &&
+                        Auth::user()->isAdmin() &&
                             $record->status === 'PENDING'
                     ),
 
@@ -128,14 +130,14 @@ class LeaveRequestsTable
                     ->icon('heroicon-o-x-mark')
                     ->visible(
                         fn(LeaveRequest $record) =>
-                        auth()->user()->isAdmin() &&
+                        Auth::user()->isAdmin() &&
                             $record->status === 'PENDING'
                     ),
 
                 EditAction::make()
                     ->visible(
                         fn(LeaveRequest $record) =>
-                        auth()->user()->isAdmin() &&
+                        Auth::user()->isAdmin() &&
                             $record->status !== 'PENDING'
                     ),
             ]);
