@@ -13,12 +13,31 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class LeaveRequestResource extends Resource
 {
     protected static ?string $model = LeaveRequest::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocument;
+
+    public static function getNavigationBadge(): ?string
+    {
+        $user = Auth::user();
+
+        if ($user->isAdmin()) {
+            return static::getModel()::where('status', 'PENDING')->count() ?: null;
+        }
+
+        return static::getModel()::where('user_id', $user->id)
+            ->where('status', 'PENDING')
+            ->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
 
     public static function form(Schema $schema): Schema
     {

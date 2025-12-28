@@ -73,7 +73,8 @@ class LeaveRequestsTable
                         'PENDING' => 'Pending',
                         'APPROVED' => 'Approved',
                         'REJECTED' => 'Rejected',
-                    ]),
+                    ])
+                    ->default('PENDING'),
             ])
             ->recordActions([
                 Action::make('approve')
