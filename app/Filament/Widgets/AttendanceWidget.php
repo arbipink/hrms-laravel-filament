@@ -31,6 +31,14 @@ class AttendanceWidget extends Widget
         $this->currentTime = Carbon::now()->format('H:i');
     }
 
+    public function getGreeting(): string
+    {
+        $hour = Carbon::now()->hour;
+        if ($hour < 12) return 'Good Morning';
+        if ($hour < 18) return 'Good Afternoon';
+        return 'Good Evening';
+    }
+
     public function clockIn()
     {
         $now = Carbon::now();
